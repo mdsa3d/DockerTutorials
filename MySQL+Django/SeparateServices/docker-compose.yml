@@ -1,0 +1,44 @@
+version: '3'
+services:
+  db:
+    image: mysql:8.0
+    cap_add:
+      - SYS_NICE
+    restart: always
+    environment:
+      - MYSQL_DATABASE=app
+      - MYSQL_ROOT_PASSWORD=xxxxx
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=userpass1_
+    ports:
+      - '3306:3306'
+    volumes:
+      - db:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/conf.d:/etc/mysql/conf.d
+    networks:
+      - customnetwork
+
+  django_app:
+    build:
+      dockerfile: Dockerfile
+      context: ./django_app
+    restart: always
+    ports:
+      - "3303:3303"
+    command: sh ./startapp.sh
+    volumes:
+      - .:/app
+      - /tmp/app/mysqld:/run/mysqld
+    networks:
+      - customnetwork
+    depends_on:
+      - db
+
+volumes:
+  db:
+    driver: local
+    
+networks:
+  customnetwork:
+    name: docker_network
