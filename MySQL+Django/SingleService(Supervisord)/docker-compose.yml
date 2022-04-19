@@ -1,0 +1,17 @@
+version: '3'
+services:
+  django_app:
+    build:
+      dockerfile: Dockerfile
+      context: ./django_app
+    ports:
+      - "3303:3303"
+    volumes:
+      - .:/app
+      - /tmp/app/mysqld:/run/mysqld
+    networks:
+      - customnetwork
+
+networks:
+  customnetwork:
+    name: docker_network
